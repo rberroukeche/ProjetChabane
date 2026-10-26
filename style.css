@@ -1,0 +1,200 @@
+:root {
+  color-scheme: light;
+  --navy: #132b46;
+  --teal: #007f86;
+  --muted: #68788a;
+  --line: #dfe6ed;
+  --background: #f3f6fa;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--navy);
+  font: 16px/1.5 "Segoe UI", Arial, sans-serif;
+}
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px max(16px, calc((100% - 960px) / 2));
+  border-bottom: 1px solid var(--line);
+  background: white;
+}
+.navbar a {
+  color: var(--navy);
+  text-decoration: none;
+}
+.navbar-brand { font-weight: 700; }
+.nav-link { color: var(--teal) !important; font-weight: 600; }
+.nav-links { display: flex; align-items: center; gap: 18px; }
+.nav-button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--teal);
+  color: white !important;
+  font-weight: 700;
+}
+main { width: min(960px, calc(100% - 32px)); margin: 48px auto; }
+header { margin-bottom: 24px; }
+.eyebrow {
+  color: var(--teal);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+h1 { margin: 6px 0; font-size: clamp(1.8rem, 5vw, 2.6rem); }
+header p, .hint { color: var(--muted); }
+.card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 12px 36px #132b4610;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.field { display: grid; gap: 8px; }
+.field label { font-size: .9rem; font-weight: 700; }
+select, input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #bdc9d5;
+  border-radius: 8px;
+  background: white;
+  color: var(--navy);
+  font: inherit;
+}
+select:focus, input:focus, button:focus-visible {
+  outline: 3px solid #007f8640;
+  outline-offset: 2px;
+  border-color: var(--teal);
+}
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+button {
+  min-height: 46px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--teal);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+button.secondary {
+  border: 1px solid var(--teal);
+  background: white;
+  color: var(--teal);
+}
+button:hover { filter: brightness(.94); }
+.hint { margin: 18px 0 0; font-size: .9rem; }
+.error {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fbe9e9;
+  color: #943b3b;
+}
+.status {
+  margin-top: 18px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--pale-teal, #e8f5f4);
+  color: var(--navy);
+}
+.status.error {
+  margin-bottom: 0;
+  background: #fbe9e9;
+  color: #943b3b;
+}
+.preview { margin-top: 24px; }
+.preview h2 { font-size: 1.15rem; }
+iframe {
+  width: 100%;
+  height: 75vh;
+  min-height: 520px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+}
+.dealership-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.dealership-table th, .dealership-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.dealership-table th {
+  background: var(--navy);
+  color: white;
+  font-size: .85rem;
+}
+.dealership-table tbody tr:last-child td { border-bottom: 0; }
+.dealership-table tbody tr:nth-child(even) { background: #f7f9fb; }
+.count-card { margin-bottom: 20px; }
+.count-card strong { color: var(--teal); font-size: 1.5rem; }
+.map-card { margin-bottom: 20px; }
+.map-card h2 { margin: 0 0 12px; font-size: 1.25rem; }
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  color: var(--muted);
+  font-size: .9rem;
+}
+.map-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend-area, .legend-point { display: inline-block; width: 14px; height: 14px; }
+.legend-area { border: 1px solid #007f86; background: #62c7be; }
+.legend-point { border: 2px solid white; border-radius: 50%; background: #132b46; box-shadow: 0 0 0 1px #132b46; }
+.map-help, .map-note, .map-attribution { color: var(--muted); font-size: .85rem; }
+.map-help { margin: 8px 0 0; }
+.map-note { margin: 0; }
+.map-attribution { margin: 4px 0 0; font-size: .75rem; }
+.map-frame {
+  width: 100%;
+  margin: 8px 0;
+  border-radius: 10px;
+  background: #f2f7fa;
+}
+#france-map { display: block; width: 100%; height: auto; max-height: 720px; }
+.department { fill: #e5ebef; stroke: white; stroke-width: 1.5; stroke-linejoin: round; }
+.department-assigned {
+  fill: #62c7be;
+  stroke: #007f86;
+  stroke-width: 1.25;
+}
+.map-marker circle { fill: #132b46; stroke: white; stroke-width: 2; }
+.map-marker text {
+  fill: white;
+  font: 700 8px "Segoe UI", Arial, sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.map-marker:focus circle { stroke: #f1b434; stroke-width: 4; }
+.dealership-table td:first-child, .dealership-table th:first-child {
+  width: 64px;
+  text-align: center;
+}
+[hidden] { display: none !important; }
+@media (max-width: 640px) {
+  main { margin: 24px auto; }
+  .fields { grid-template-columns: 1fr; }
+  .card { padding: 20px; }
+  .navbar { align-items: flex-start; flex-direction: column; }
+  .nav-links { flex-wrap: wrap; gap: 12px; }
+}

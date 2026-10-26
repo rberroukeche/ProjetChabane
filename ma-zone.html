@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My zone — Dealership Reports</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="ma-zone.js" defer></script>
+</head>
+<body>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Generate a report</a>
+      <a class="nav-button" href="ma-zone.html" aria-current="page">My zone</a>
+    </div>
+  </nav>
+  <main>
+    <header>
+      <div class="eyebrow">Assigned dealerships</div>
+      <h1 id="zone-title">My zone</h1>
+      <p>All dealerships assigned to your zone, including sites without campaign records.</p>
+    </header>
+    <section class="card map-card" aria-label="Map of assigned dealerships in France">
+      <h2>My zone on the map</h2>
+      <div class="map-legend">
+        <span><i class="legend-area"></i> Department with an assigned dealership</span>
+        <span><i class="legend-point"></i> Assigned dealership</span>
+      </div>
+      <p class="map-help">Numbers on the map match the “Map #” column in the list.</p>
+      <div class="map-frame">
+        <svg id="france-map" viewBox="0 0 820 760" role="img" aria-label="Map of France showing assigned dealership locations">
+          <text x="410" y="380" text-anchor="middle">Loading France map…</text>
+        </svg>
+      </div>
+      <p class="map-note">Highlighted departments contain at least one assigned dealership; they are a visual guide, not an official zone boundary. Dealer points use commune centers.</p>
+      <p class="map-attribution">Department boundaries: france-geojson. Commune centers: French geographic data API.</p>
+      <p class="status" id="map-status" role="status" aria-live="polite" hidden></p>
+    </section>
+    <section class="card count-card" aria-label="Assigned dealership count">
+      <div><strong id="dealership-count">—</strong> assigned dealerships</div>
+    </section>
+    <section class="table-wrap" aria-label="Assigned dealerships">
+      <table class="dealership-table">
+        <thead>
+          <tr>
+            <th scope="col">Map #</th>
+            <th scope="col">Dealership</th>
+            <th scope="col">Records</th>
+            <th scope="col">Finished</th>
+            <th scope="col">Open</th>
+            <th scope="col">Completion rate</th>
+          </tr>
+        </thead>
+        <tbody id="dealership-list">
+          <tr><td colspan="5">Loading assigned dealerships…</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <p class="status" id="request-status" role="status" aria-live="polite" hidden></p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dealership Reports</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-links">
+      <a class="nav-button" href="#report-settings" aria-current="page">Generate a report</a>
+      <a class="nav-link" href="ma-zone.html">My zone</a>
+    </div>
+  </nav>
+  <main>
+    <header id="page-header">
+      <div class="eyebrow">Service Campaign Performance</div>
+      <h1>Generate a report</h1>
+      <p>Generate reports for French dealerships assigned to Zones 1–4. Reports use the latest Excel files in this project folder.</p>
+    </header>
+    <section class="card" id="report-settings" aria-label="Report settings">
+      <form id="report-form" method="post" action="/report" target="pdf-preview">
+        <div class="fields">
+          <div class="field">
+            <label for="report-type">Report type</label>
+            <select id="report-type" name="report_type">
+              <option value="global" selected>Zone report — all dealerships</option>
+              <option value="all_zones">France overview — Zones 1–4</option>
+              <option value="group">Dealership group report</option>
+              <option value="dealership">Dealership report</option>
+            </select>
+          </div>
+          <div class="field" id="zone-field">
+            <label for="zone">French zone</label>
+            <select id="zone" name="zone" required>
+              <option value="">Loading zones...</option>
+            </select>
+          </div>
+          <div class="field" id="dealership-field" hidden>
+            <label for="group-filter" id="group-label">Dealership group</label>
+            <select id="group-filter" name="group_filter" disabled>
+              <option value="">Loading groups...</option>
+            </select>
+          </div>
+          <div class="field" id="dealership-select-field" hidden>
+            <label for="dealership">Dealership</label>
+            <select id="dealership" name="dealership" disabled required>
+              <option value="">Loading dealerships...</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" name="action" value="view">View report</button>
+          <button class="secondary" type="submit" name="action" value="download">
+            Download PDF
+          </button>
+        </div>
+        <p class="hint">Reports cover France only. No date filter; reports are dated automatically when generated.</p>
+      </form>
+      <div class="status" id="request-status" role="status" aria-live="polite" hidden></div>
+    </section>
+    <section class="preview" id="preview-section" hidden aria-label="Report preview">
+      <h2>Report preview</h2>
+      <p><a id="open-preview" target="_blank" rel="noopener">Open preview in a new tab</a></p>
+      <iframe id="pdf-preview" name="pdf-preview" title="PDF report preview"></iframe>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
