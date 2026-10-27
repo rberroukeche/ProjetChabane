@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Report History</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-links">
+      <a class="nav-link" href="/">Generate a report</a>
+      <a class="nav-link" href="/ma-zone">My zone</a>
+      <a class="nav-button" href="/rapport.html" aria-current="page">Report history</a>
+    </div>
+  </nav>
+  <main>
+    <header>
+      <div class="eyebrow">Saved PDFs</div>
+      <h1>Report history</h1>
+      <p>{{REPORT_COUNT_TEXT}}. The date shows when each report was generated.</p>
+    </header>
+    {{REPORT_CONTENT}}
+    <p class="hint">PDF files are saved in the project's rapports folder.</p>
+  </main>
+</body>
+</html>

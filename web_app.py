@@ -381,6 +381,87 @@ def _dealership_options(records: list[dict[str, str]]) -> list[dict[str, str]]:
     return options
 
 
+def _report_timestamp(filename: str) -> datetime | None:
+    match = re.search(
+        r"_(\d{8}_\d{6}(?:_\d{6})?)\.pdf$",
+        filename,
+    )
+    if match is None:
+        return None
+    timestamp = match.group(1)
+    for timestamp_format in ("%Y%m%d_%H%M%S_%f", "%Y%m%d_%H%M%S"):
+        try:
+            return datetime.strptime(timestamp, timestamp_format)
+        except ValueError:
+            continue
+    return None
+
+
+def _report_details(filename: str) -> tuple[str, str]:
+    stem = filename.removesuffix(".pdf")
+    timestamp = re.search(r"_\d{8}_\d{6}(?:_\d{6})?$", stem)
+    if timestamp is None:
+        return "Report", stem
+    slug = stem[len("report_") : timestamp.start()].strip("_")
+    if slug == "zones_comparison":
+        return "France overview", "Zones 1–4"
+    if slug.endswith("_global"):
+        return "Zone report", slug[: -len("_global")].replace("_", " ").title()
+    if "_concession_" in slug:
+        zone, dealership = slug.split("_concession_", 1)
+        return (
+            "Dealership report",
+            f"{zone.replace('_', ' ').title()} - "
+            f"{dealership.replace('_', ' ').title()}",
+        )
+    if "_group_" in slug:
+        zone, group = slug.split("_group_", 1)
+        return (
+            "Group report",
+            f"{zone.replace('_', ' ').title()} - {group.replace('_', ' ').title()}",
+        )
+    return "Report", slug.replace("_", " ").title()
+
+
+def _report_history_page(reports: list[dict[str, str]]) -> bytes:
+    if reports:
+        rows = "".join(
+            "<tr>"
+            f"<td>{escape_html(report['date'])}</td>"
+            f"<td>{escape_html(report['type'])}</td>"
+            f"<td>{escape_html(report['details'])}</td>"
+            f"<td>{escape_html(report['filename'])}</td>"
+            "<td class=\"report-actions\">"
+            f"<a href=\"/reports/{escape_html(report['filename'])}\">Open</a>"
+            f"<a href=\"/reports/{escape_html(report['filename'])}?download=1\">"
+            "Download</a></td></tr>"
+            for report in reports
+        )
+        table = (
+            '<div class="table-wrap"><table class="dealership-table report-table">'
+            "<thead><tr><th>Date</th><th>Type</th><th>Details</th>"
+            "<th>File</th><th>Actions</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table></div>"
+        )
+    else:
+        table = (
+            '<section class="card"><p class="hint">No PDF reports have been saved '
+            "yet. Reports will appear here after they are generated."
+            "</p></section>"
+        )
+    template_path = Path(__file__).resolve().parent / "rapport.html"
+    template = template_path.read_text(encoding="utf-8")
+    return (
+        template.replace(
+            "{{REPORT_COUNT_TEXT}}",
+            f"{len(reports)} saved report"
+            f"{'s' if len(reports) != 1 else ''}",
+        )
+        .replace("{{REPORT_CONTENT}}", table)
+        .encode("utf-8")
+    )
+
+
 class ReportHTTPServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
@@ -413,13 +494,110 @@ class ReportRequestHandler(BaseHTTPRequestHandler):
         self.dealership_options = _dealership_options(self.records)
 
     def do_GET(self) -> None:
-        if self.path == "/":
+        parsed_path = urlsplit(self.path)
+        if parsed_path.path in {"/", "/index.html"}:
             self._send_html(_page())
+            return
+        if parsed_path.path in {"/ma-zone", "/ma-zone.html"}:
+            page_path = Path(__file__).resolve().parent / "ma-zone.html"
+            self._send_html(page_path.read_bytes())
             return
         if self.path == "/style.css":
             self._send_css(_stylesheet())
             return
-        parsed_path = urlsplit(self.path)
+        static_assets = {
+            "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+            "/ma-zone.js": ("ma-zone.js", "text/javascript; charset=utf-8"),
+            "/france-departments.json": (
+                "france-departments.json",
+                "application/json; charset=utf-8",
+            ),
+        }
+        if parsed_path.path in static_assets:
+            filename, content_type = static_assets[parsed_path.path]
+            asset_path = Path(__file__).resolve().parent / filename
+            try:
+                content = asset_path.read_bytes()
+            except OSError as error:
+                self.log_error("Could not read site asset %s: %s", filename, error)
+                self.send_error(500, "Could not load a site asset.")
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self._send_live_server_cors_headers()
+            self.end_headers()
+            self.wfile.write(content)
+            return
+        if parsed_path.path in {"/reports", "/rapport.html"}:
+            report_directory = (
+                Path(__file__).resolve().parent / report_app.OUTPUT_DIRECTORY
+            )
+            try:
+                report_files = [
+                    path
+                    for path in report_directory.iterdir()
+                    if path.is_file()
+                    and re.fullmatch(
+                        r"report_[a-z0-9_]+_\d{8}_\d{6}(?:_\d{6})?\.pdf",
+                        path.name,
+                    )
+                ]
+            except FileNotFoundError:
+                report_files = []
+            except OSError as error:
+                self.log_error("Could not list saved reports: %s", error)
+                self.send_error(500, "Could not read the saved reports.")
+                return
+
+            reports = []
+            for path in report_files:
+                generated_at = _report_timestamp(path.name)
+                if generated_at is None:
+                    continue
+                report_type, details = _report_details(path.name)
+                reports.append(
+                    {
+                        "filename": path.name,
+                        "date": generated_at.strftime("%d/%m/%Y %H:%M"),
+                        "type": report_type,
+                        "details": details,
+                    }
+                )
+            reports.sort(
+                key=lambda report: _report_timestamp(report["filename"])
+                or datetime.min,
+                reverse=True,
+            )
+            try:
+                page = _report_history_page(reports)
+            except OSError as error:
+                self.log_error("Could not read report history page: %s", error)
+                self.send_error(500, "Could not read the report history page.")
+                return
+            self._send_html(page)
+            return
+        if parsed_path.path.startswith("/reports/"):
+            filename = parsed_path.path.removeprefix("/reports/")
+            if not re.fullmatch(
+                r"report_[a-z0-9_]+_\d{8}_\d{6}(?:_\d{6})?\.pdf",
+                filename,
+            ):
+                self.send_error(404, "Report not found.")
+                return
+            report_path = (
+                Path(__file__).resolve().parent
+                / report_app.OUTPUT_DIRECTORY
+                / filename
+            )
+            if not report_path.is_file():
+                self.send_error(404, "Report not found.")
+                return
+            query = parse_qs(parsed_path.query)
+            action = "download" if query.get("download") == ["1"] else "view"
+            self._send_pdf(report_path, action)
+            return
         if parsed_path.path == "/zones":
             self._refresh_data()
             self._send_json(list(self.comparison_zones))

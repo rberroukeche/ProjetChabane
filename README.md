@@ -47,11 +47,13 @@ added to the comparison.
    .\.venv\Scripts\python.exe web_app.py
    ```
 
-4. Open `index.html` with **Go Live**. Choose a zone, then generate a zone
+4. Open `http://127.0.0.1:8765` in your browser. Choose a zone, then generate a zone
    overview, dealership-group report, or individual-dealership report. Choose
    the France overview to combine Zones 1–4.
    **View report** displays an HTML preview; **Download PDF** downloads a
-   meeting-ready PDF. Downloaded PDFs are also saved in `rapports`.
+   meeting-ready PDF. Downloaded PDFs are also saved in `rapports`. Open
+   `rapport.html` (**Report history**) to see saved reports, their generation
+   dates, and links to open or download them.
    Use **My zone** in the navigation to view every dealership assigned to the
    configured personal zone, including sites without campaign records.
    Its France map highlights departments containing assigned dealerships and
@@ -59,7 +61,9 @@ added to the comparison.
    departments are a visual guide, not an official zone boundary.
 
 The web page styles are in `style.css`. The local report service listens on
-`127.0.0.1:8765`; keep `web_app.py` running while using the page.
+`127.0.0.1:8765`; keep `web_app.py` running while using the page. VS Code Live
+Server can also serve the static files; start `web_app.py` first so its report
+API and history links are available.
 Web reports are limited to dealership records mapped to French Zones 1–4.
 Choose a zone to generate a zone overview, group report, or individual
 dealership report; the France overview combines all four zones.
